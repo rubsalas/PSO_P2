@@ -3,7 +3,187 @@ Proyecto 2 del curso CE-4303 Principios de Sistemas Operativos del programa de L
 
 ## Proyecto Específico por Definir
 
-### Instalación y Configuración
+
+### Raspberry Pi
+
+1. Para instalar un sistema operativo en el Raspberry Pi se necesitará el software de Raspberry Pi Imager.
+
+Descargar de [Raspberry Pi](http://www.raspberrypi.com/software/)
+
+O bien, se puede instalar por medio de una terminal
+```bash
+sudo apt install rpi-imager
+```
+
+
+2. Crear la imagen del sistema operativo
+
+Se estará instalando el sistema operativo de Ubuntu en la tarjeta.
+
+Se debe buscar la aplicación del Imager y abrirla. Ahí se escogerá el sistema operativo Ubuntu Desktop (64-BIT). Se necesitará una tarjeta micro sd para flashear la imagen, esta debe ser escogida en el programa.
+
+Con esto se puede comenzar a escribir en la tarjeta.
+
+Al finalizar de crear la imagen en la tarjeta se ejecta del computador y se ingresa a la Raspberry Pi.
+
+Para este proyecto se estará utilizando una Raspberry Pi 5 con 8 Gb de RAM.
+
+
+3. Bootear el sistema operativo
+
+Con la tarjeta ya ingresada en su slot correspondiente en la Raspberry Pi, se procede a conectarla a la corriente. Esto hará que haga el boot desde la tarjeta micro sd.
+
+Seguir las indicaciones para configurar el sistema operativo. Para el proyecto se estará utilizando Ubuntu. 
+
+
+4. Actualizar el sistema operativo
+
+Como recomendación actualizar el sistema operativo recién instalado si hay oportunidad,
+
+
+5. Utilizando el Raspberry Pi
+
+Si se conecta por HDMI a un monitor, este funcionará como cualquier otro computador manejado por un teclado y un mouse. Aún así, se le configurará una conexión para accederlo por ssh.
+
+
+6. Configuración de red estática
+
+Ir a la parte de la red cableada en la configuración de red.
+
+En la parte de IPv4:
+
+Asignar el método manual
+
+**Asignar una Dirección:**
+
+Dirección: 192.168.50.180
+
+Máscara de red: 255.255.255.0
+
+Puerta de enlace: 192.168.50.1
+
+**Configurar el DNS:**
+
+Desmarcar el automático
+
+Asignar el 192.168.50.1
+
+Desconectarse y volverse a conectar para que los cambios ocurran
+
+
+7. Descarga de dependencias para la configuración del acceso
+
+Instalar dependencias de ssh
+```bash
+sudo apt-get install ssh
+```
+
+
+8. Configuración del computador que se conectará al Raspberry Pi
+
+Para que un computador pueda ser capaz de ingresar y manejar el Raspberry Pi se necesita que este pueda tener acceso al ssh.
+
+Se crea una llave para el ssh
+```bash
+ssh-keygen
+```
+no asignar file
+dejar empty el passphrase
+
+Se crea el key de forma aleatoria
+
+Se procede a copiar la llave que se acaba de crear en el computador, por medio del protocolo SCP
+```bash
+scp .ssh/id_rsa.pub rpiUser@192.168.50.180:/home/rpiUser
+```
+
+Ahora, en el Raspberry.
+
+Crear directorio ".ssh" para que el computador pueda obtener el key al conectarse
+```bash
+mkdir .ssh
+```
+
+Se le otorgan los permisos al folder
+```bash
+chmod 700 .ssh
+```
+
+Se mueve el archivo dentro de .ssh como "authorized_keys"
+```bash
+mv id_rsa.pub .ssh/authorized_keys
+```
+
+Para acceder al Raspberry Pi desde el computador
+
+Se hace una conexión vía ssh
+```bash
+ssh rpiUser@192.168.50.180
+```
+
+Ahora se puede controlar la Raspberry Pi a la cual se conectó.
+
+Para terminar la conexión.
+```bash
+exit
+```
+
+Para facilitar la conexión, se puede editar el archivo hosts.
+```bash
+sudo nano /etc/hosts
+```
+
+Se abrirá el archivo para editar y se debe agregar la dirección ip del Raspberry Pi.
+```txt
+192.168.50.180 rpi5 rpi5
+```
+
+Ahora se podrá conectar por ssh a partir del nombre guardado, pero con el usuario del nodo.
+```bash
+ssh rpiUser@rpi5
+```
+Si tienen el mismo usuario, no es necesario ponerlo al conectarse.
+```bash
+ssh rpi5
+```
+Para terminar la conexión, se mantiene el mismo comando.
+```bash
+exit
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Instalación y Configuración OpenMPI y Cluster
 
 
 1. Instalación de paquetes básicos en TODOS los nodos
@@ -92,7 +272,7 @@ Tip: Configurar el sistema operativo con el mismo nombre de usuario en todas las
 
 Esta parte ya puede ser hecha en otra computadora
 
-Ir a la parte de la red cableada en la configuración de redl (nodo esclavo)
+Ir a la parte de la red cableada en la configuración de red (nodo esclavo)
 
 En la parte de IPv4:
 
@@ -191,7 +371,7 @@ Se mueve el archivo dentro de .ssh como "authorized_keys"
 mv id_rsa.pub .ssh/authorized_keys
 ```
 
-Si al correr el programa paralelizado da problemas la conexión intentar hacer este paso anterior solo con este comando, el usuario del esclavo y el ip del esclavo
+Si al correr el programa paralelizado da problemas la conexión, intentar hacer este paso anterior solo con este comando, el usuario del esclavo y el ip del esclavo
 ```bash
 ssh-copy-id slaveUser@192.168.122.101
 ```
