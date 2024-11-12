@@ -48,6 +48,8 @@ __used __section("__versions") = {
 	{ 0xf9a482f9, "msleep" },
 	{ 0xfbe2272c, "gpiod_set_raw_value" },
 	{ 0x38e0975f, "gpio_to_desc" },
+	{ 0x8e865d3c, "arm_delay_ops" },
+	{ 0x2196324, "__aeabi_idiv" },
 	{ 0x92997ed8, "_printk" },
 	{ 0xb1ad28e0, "__gnu_mcount_nc" },
 };
@@ -55,4 +57,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "00C1DFD14C4C64ECCBA4A46");
+MODULE_INFO(srcversion, "E282D0CF4E80F90E6A21BF7");
