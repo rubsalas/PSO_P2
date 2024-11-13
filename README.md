@@ -152,37 +152,6 @@ exit
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### Instalación y Configuración OpenMPI y Cluster
 
 
@@ -220,18 +189,19 @@ Instalar build-essential
 sudo apt-get install build-essential
 ```
 
-Configurar donde instalar Open MPI
+Configurar donde instalar Open MPI. "--enable-heterogeneous" se utiliza para poder compilar en arm y que pueda correr con x86.
 ```bash
-./configure --prefix=$HOME/openmpi
+sudo ./configure --enable-heterogeneous --with-internal-pmix --prefix=/usr
 ```
 
-Compilar el paquete de MPI
+Compilar el paquete de MPI en paralelo, utilizando todos los nucleos de la CPU para completar la compilación más rápido.
 ```bash
-make all
+sudo make -j$(nproc) all
 ```
+
 Una vez compilado, se instala
 ```bash
-make install
+sudo make install
 ```
 
 Instalar paquetes complementarios para MPI
@@ -241,10 +211,16 @@ sudo apt-get install openmpi-bin libopenmpi-dev
 
 Agregar Open MPI a las variables de entorno
 ```bash
-export PATH=$PATH:$HOME/openmpi/bin
+echo 'export PATH=/usr/bin:$PATH' >> ~/.bashrc
 ```
+
 ```bash
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/openmpi/lib
+echo 'export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+```
+
+Recarga el archivo ~/.bashrc para actualizar las variables de entorno
+```bash
+source ~/.bashrc
 ```
 
 Verificar la instalación con la versión del compilador de c en open mpi
@@ -252,25 +228,62 @@ Verificar la instalación con la versión del compilador de c en open mpi
 mpicc -v
 ```
 
+Como se tendrá que utilizar mpicc con sudo, se debe agregar a su PATH
+
+Para que sudo incluya el PATH actualizado
+```bash
+sudo env "PATH=$PATH" mpicc --version
+```
+
+Edita el Archivo de Configuración de sudoers
+```bash
+sudo visudo
+```
+
+Agrega el PATH de OpenMPI. Buscar la línea que comienza con Defaults secure_path y agregar el directorio de OpenMPI (/home/_user_/openmpi/bin) al final de esta línea
+```bash
+Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+```
+
+Verificar que tenga Heterogeneous support
+```bash
+ompi_info | grep Heterogeneous
+```
+
+Si hay problemas con la instalación y configuración
+
+Eliminar archivos de compilación previos desde el directorio de OpenMPI
+```bash
+make clean
+```
+
+Ejecuta un distclean, que es una limpieza más profunda:
+```bash
+make distclean
+```
+
+Para desinstalarlo
+```bash
+make uninstall
+```
+
+Asegurarse donde se instaló OpenMPI
+```bash
+which mpirun
+```
+
+Elimina todos los archivos de OpenMPI. Si está en /usr/bin/, ejecutar:
+```bash
+sudo rm -rf /usr/bin/mpi*
+sudo rm -rf /usr/include/mpi*
+sudo rm -rf /usr/lib/libmpi*
+sudo rm -rf /usr/share/openmpi
+sudo rm -rf /usr/etc/openmpi
+```
+
+
 
 2. Configuración de red estática en el nodo esclavo
-
-Si es necesario, crear una máquina virtual. En su configuración de red, escoger Bridged Adapter. No utilizar el default de 'NAT'
-
-Poner el nombre del adaptador que se puede encontrar con el siguiente comando en el nodo maestro
-```bash
-ip address
-```
-
-Asegurarse de ingresar la misma dirección MAC que el adaptador
-
-Abrir la máquina virtual desde el nodo maestro
-```bash
-sudo virt-manager
-```
-Tip: Configurar el sistema operativo con el mismo nombre de usuario en todas las máquinas (user)
-
-Esta parte ya puede ser hecha en otra computadora
 
 Ir a la parte de la red cableada en la configuración de red (nodo esclavo)
 
@@ -313,6 +326,8 @@ sudo apt-get install nfs-kernel-server nfs-common portmap
 
 4. Configuración de red estática en el nodo maestro
 
+Si ya se hizo en la configuración del Raspberry, saltar esta parte.
+
 Ir a la parte de la red cableada en la configuración de red
 
 En la parte de IPv4:
@@ -321,7 +336,7 @@ Asignar el método manual
 
 **Asignar una Dirección:**
 
-Dirección: 192.168.50.100
+Dirección: 192.168.50.180
 
 Máscara de red: 255.255.255.0
 
@@ -349,10 +364,14 @@ dejar empty el passphrase
 
 Se crea el key de forma aleatoria
 
+Revisar el nombre del public key que se acaba de crear, en este caso fue id_ed25519.pub. Este está guardado en la carpeta .ssh/.
+
 Se procede a copiar la llave que se acaba de crear al nodo esclavo, por medio del protocolo SCP
 ```bash
-scp .ssh/id_rsa.pub slaveUser@192.168.122.101:/home/slaveUser
+scp .ssh/id_ed25519.pub slaveUser@192.168.50.102:/home/slaveUser
 ```
+
+Ingresar la clave del computador al que se está enviando, si es necesario.
 
 Ahora en el nodo esclavo
 
@@ -368,7 +387,7 @@ chmod 700 .ssh
 
 Se mueve el archivo dentro de .ssh como "authorized_keys"
 ```bash
-mv id_rsa.pub .ssh/authorized_keys
+mv id_ed25519.pub .ssh/authorized_keys
 ```
 
 Si al correr el programa paralelizado da problemas la conexión, intentar hacer este paso anterior solo con este comando, el usuario del esclavo y el ip del esclavo
@@ -391,6 +410,7 @@ exit
 ```
 
 Se deben configurar así cada uno de los nodos.
+
 Editar los archivos hosts
 ```bash
 sudo nano /etc/hosts
@@ -416,11 +436,11 @@ ssh node2
 
 6. Configuración del servidor de archivos NFS
 
-En cada nodo del cluster, se necesita que todos los programas distribuidos por ejecutar tengan a disposición una carpeta compartida entre ellos. Esto será posible con la librería instalada anteriormente nfs-kernel-server.
+En cada nodo del cluster, se necesita que todos los programas distribuidos por ejecutar tengan a disposición una carpeta compartida entre ellos. Esto será posible con la librería instalada anteriormente, nfs-kernel-server.
 
 Se configurará el recurso compartido
 
-Se creará un directorio en el home del nodo maestro. Este debería quedar a la par del directorio con nombre del usuario en /home/cluster/
+Se creará un directorio en el home del nodo maestro. Este debería quedar a la par del directorio con nombre del usuario en /home/clusterdir/
 ```bash
 cd ..
 sudo mkdir clusterdir
@@ -433,7 +453,8 @@ sudo nano /etc/exports
 
 Se abrirá para editar el archivo. Se debe agregar la ruta del directorio de la carpeta en el nodo maestro y las ips de los nodos esclavos
 ```txt
-/home/clusterdir 192.168.122.101(rw,no_subtree_check,async,fsid=0,no_root_squash,insecure)
+/home/clusterdir 172.18.180.182(rw,no_subtree_check,async,fsid=0,no_root_squash,insecure)
+192.168.50.102
 ```
 
 Se debe reiniciar el servicio de nfs
@@ -443,7 +464,8 @@ sudo /etc/init.d/nfs-kernel-server restart
 
 Para verificar que se pueda acceder a la carpeta compartida desde el nodo esclavo se utiliza el comando showmount con el ip del nodo master
 ```bash
-showmount -e 192.168.50.100
+showmount -e 172.18.138.190
+192.168.50.180
 ```
 
 Se montará el recurso desde el cli para ser agregado a fstab. Así se hará el montado automático para que cada vez que arranque el nodo se cree en /home del nodo el directorio clusterdir igual que el nodo maestro. Ahí estarán los recursos compartidos del nodo maestro a través de nfs
@@ -460,7 +482,8 @@ sudo nano /etc/fstab
 
 Se modifica el archivo fstab agregando al final el ip del nodo maestro, la dirección del directorio del nodo maestro, la dirección del directorio del nodo esclavo
 ```txt
-192.168.50.100:/home/clusterdir /home/clusterdir nfs rw,sync,hard,intr 0 0
+172.18.138.190:/home/clusterdir /home/clusterdir nfs rw,sync,hard,intr 0 0
+192.168.50.180
 ```
 
 Se monta
@@ -478,6 +501,7 @@ Si se desea desmontar (no hacer)
 sudo umount -a
 ```
 
+
 7. Configuración del entorno de desarrollo
 
 El paquete de build-essentials tiene lo necesario para desarrollar y compilar, que ya se intenta instalar al inicio (usualmente ya viene en el SO)
@@ -485,10 +509,12 @@ El paquete de build-essentials tiene lo necesario para desarrollar y compilar, q
 
 8. Configuración para MPI
 
+Continuando dentro del directorio /home/clusterdir/
+
 Se crea un archivo de compilación .mpi_hostfile en el nodo maestro
 
 ```bash
-nano .mpi_hostfile
+sudo nano .mpi_hostfile
 ```
 
 Se edita y se le agrega
@@ -506,9 +532,10 @@ node2 slots=1
 node3 slots=1
 ```
 
-Cada slot son la cantidad de procesos por ejecutar
+Cada slot es la cantidad de procesos que cada nodo puede ejecutar. Esto depende de la cantidad de cores del computador.
 
 Aquí se puede realizar ya una prueba
+
 
 9. Compilación del código por paralelizar
 
@@ -524,8 +551,11 @@ mpicc -o <executable_name> <program_code_file> -lm
 
 Por ejemplo:
 ```bash
-mpicc -o gaussian_blur_mpi gaussian_blur_mpi.c -lm
+sudo mpicc -o gaussian_blur_mpi gaussian_blur_mpi.c -lm
+sudo env "PATH=$PATH" "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" mpicc -o hello_mpi_x86 mpi_test/hello_mpi.c
 ```
+
+Se utiliza sudo por estar en un directorio con permisos privilegiados
 
 
 10. Ejecución del programa paralelizable con mpi
@@ -534,12 +564,13 @@ Su binario ejecutable debe estar dentro de la carpeta compartida por nfs
 
 Para correrlo con mpi:
 ```bash
-mpirun -np <number_of_processes> --hostfile <hostfile_name>./<executable_name> <upper_limit>
+mpirun -np <number_of_processes> --hostfile <hostfile_name> ./<executable_name> <upper_limit>
 ```
 
 Por ejemplo:
 ```bash
 mpirun -np 4 --hostfile .mpi_hostfile ./gaussian_blur_mpi
+mpirun -np 1 --hostfile ../.mpi_hostfile_aarch64 hello_mpi_aarch64 : -np 1 --hostfile ../.mpi_hostfile_x86 hello_mpi_x86
 ```
 
 
@@ -561,3 +592,4 @@ sudo mount -a
 ```
 
 Se recomienda salirse de la carpeta /home/clusterdir/ y volver a ingresar, si se encuentra en esta, para que los archivos carguen nuevamente
+
