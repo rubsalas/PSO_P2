@@ -1,5 +1,5 @@
 # Compiler and flags
-CC = gcc
+CC = mpicc  # Cambiar a mpicc para soportar MPI
 CFLAGS = -Wall -Iinclude
 LDFLAGS = -lssl -lcrypto  # Agregar las bibliotecas en el enlace
 
@@ -10,10 +10,10 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Target executable
-TARGET = $(BIN_DIR)/word_counter_project
+TARGET = $(BIN_DIR)/word_counter_project_mpi
 
 # Source files
-SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/word_counter.c $(SRC_DIR)/crypto_utils.c
+SRCS = $(SRC_DIR)/main_mpi.c $(SRC_DIR)/word_counter.c $(SRC_DIR)/crypto_utils.c
 
 # Object files (replace .c with .o and store in OBJ_DIR)
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
@@ -32,9 +32,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-# Run the project
+# Run the project with MPI
 run: $(TARGET)
-	./$(TARGET)
+	mpirun -np 4 $(TARGET)
 
 # Rule to build with optional hardware support
 hardware: CFLAGS += -DHARDWARE_SUPPORT
