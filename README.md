@@ -584,3 +584,49 @@ sudo apt install libssl-dev
 ```
 
 
+2. Compilar el proyecto
+
+Estar en el folder ServerMPI con el Makefile
+
+Para compilar
+```bash
+make
+```
+
+Para limpiar el proyecto
+```bash
+make clean
+```
+
+Ejecutar el proyecto localmente con MPI localmente
+```bash
+make run NP=4
+```
+
+Para ejecutar el proyecto en un entorno MPI distribuido usando un archivo de hosts
+```bash
+make run_mpi NP=18
+```
+
+
+
+### Monitoreo de tráfico de red en tiempo real
+
+1. Para monitorear el tráfico de red en tiempo real de una manera gráfica en la terminal.
+
+Para instalar el programa nload
+```bash
+sudo apt install nload
+```
+
+Para ejecutarlo
+```bash
+sudo nload
+```
+
+Si se desea monitorear una interfaz específica
+```bash
+sudo nload eth0
+```
+
+
