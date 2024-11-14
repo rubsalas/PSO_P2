@@ -1,7 +1,9 @@
 # PSO_P2
 Proyecto 2 del curso CE-4303 Principios de Sistemas Operativos del programa de Licenciatura en Ingeniería en Computadores del Instituto Tecnológico de Costa Rica.
 
-## Proyecto Específico por Definir
+
+## Word Counter
+
 
 
 ### Raspberry Pi
@@ -25,8 +27,6 @@ Se debe buscar la aplicación del Imager y abrirla. Ahí se escogerá el sistema
 Con esto se puede comenzar a escribir en la tarjeta.
 
 Al finalizar de crear la imagen en la tarjeta se ejecta del computador y se ingresa a la Raspberry Pi.
-
-Para este proyecto se estará utilizando una Raspberry Pi 5 con 8 Gb de RAM.
 
 
 3. Bootear el sistema operativo
@@ -135,21 +135,22 @@ sudo nano /etc/hosts
 
 Se abrirá el archivo para editar y se debe agregar la dirección ip del Raspberry Pi.
 ```txt
-192.168.50.180 rpi5 rpi5
+192.168.50.180 rpi rpi
 ```
 
 Ahora se podrá conectar por ssh a partir del nombre guardado, pero con el usuario del nodo.
 ```bash
-ssh rpiUser@rpi5
+ssh rpiUser@rpi
 ```
 Si tienen el mismo usuario, no es necesario ponerlo al conectarse.
 ```bash
-ssh rpi5
+ssh rpi
 ```
 Para terminar la conexión, se mantiene el mismo comando.
 ```bash
 exit
 ```
+
 
 
 ### Instalación y Configuración OpenMPI y Cluster
@@ -191,7 +192,7 @@ sudo apt-get install build-essential
 
 Configurar donde instalar Open MPI. "--enable-heterogeneous" se utiliza para poder compilar en arm y que pueda correr con x86.
 ```bash
-sudo ./configure --enable-heterogeneous --with-internal-pmix --prefix=/usr
+sudo ./configure --prefix=/usr
 ```
 
 Compilar el paquete de MPI en paralelo, utilizando todos los nucleos de la CPU para completar la compilación más rápido.
@@ -228,28 +229,6 @@ Verificar la instalación con la versión del compilador de c en open mpi
 mpicc -v
 ```
 
-Como se tendrá que utilizar mpicc con sudo, se debe agregar a su PATH
-
-Para que sudo incluya el PATH actualizado
-```bash
-sudo env "PATH=$PATH" mpicc --version
-```
-
-Edita el Archivo de Configuración de sudoers
-```bash
-sudo visudo
-```
-
-Agrega el PATH de OpenMPI. Buscar la línea que comienza con Defaults secure_path y agregar el directorio de OpenMPI (/home/_user_/openmpi/bin) al final de esta línea
-```bash
-Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-```
-
-Verificar que tenga Heterogeneous support
-```bash
-ompi_info | grep Heterogeneous
-```
-
 Si hay problemas con la instalación y configuración
 
 Eliminar archivos de compilación previos desde el directorio de OpenMPI
@@ -272,7 +251,7 @@ Asegurarse donde se instaló OpenMPI
 which mpirun
 ```
 
-Elimina todos los archivos de OpenMPI. Si está en /usr/bin/, ejecutar:
+Eliminar todos los archivos de OpenMPI. Si está en /usr/bin/, ejecutar:
 ```bash
 sudo rm -rf /usr/bin/mpi*
 sudo rm -rf /usr/include/mpi*
@@ -280,7 +259,6 @@ sudo rm -rf /usr/lib/libmpi*
 sudo rm -rf /usr/share/openmpi
 sudo rm -rf /usr/etc/openmpi
 ```
-
 
 
 2. Configuración de red estática en el nodo esclavo
@@ -293,17 +271,17 @@ Asignar el método manual
 
 **Asignar una Dirección:**
 
-Dirección: 192.168.122.101
+Dirección: 172.18.64.131
 
 Máscara de red: 255.255.255.0
 
-Puerta de enlace: 192.168.122.1
+Puerta de enlace: 172.18.127.1
 
 **Configurar el DNS:**
 
 Desmarcar el automático
 
-Asignar el 192.168.50.1
+Asignar el 172.20.10.15
 
 Desconectarse y volverse a conectar para que los cambios ocurran
 
@@ -336,17 +314,17 @@ Asignar el método manual
 
 **Asignar una Dirección:**
 
-Dirección: 192.168.50.180
+Dirección: 172.18.244.159
 
 Máscara de red: 255.255.255.0
 
-Puerta de enlace: 192.168.50.1
+Puerta de enlace: 172.18.127.1
 
 **Configurar el DNS:**
 
 Desmarcar el automático
 
-Asignar el 192.168.50.1
+Asignar el 172.20.10.15
 
 Proceder a conectar el nodo maestro en la red cableada para que el LAN funcione
 
@@ -357,18 +335,18 @@ Para que el maestro sea capaz de ejecutar comandos en cada uno de los nodos escl
 
 Se crea una llave para el ssh
 ```bash
-ssh-keygen
+ssh-keygen -t rsa
 ```
 no asignar file
 dejar empty el passphrase
 
 Se crea el key de forma aleatoria
 
-Revisar el nombre del public key que se acaba de crear, en este caso fue id_ed25519.pub. Este está guardado en la carpeta .ssh/.
+Revisar el nombre del public key que se acaba de crear, en este caso fue id_rsa.pub. Este está guardado en la carpeta .ssh/.
 
 Se procede a copiar la llave que se acaba de crear al nodo esclavo, por medio del protocolo SCP
 ```bash
-scp .ssh/id_ed25519.pub slaveUser@192.168.50.102:/home/slaveUser
+scp .ssh/id_rsa.pub slaveUser@192.168.50.102:/home/slaveUser
 ```
 
 Ingresar la clave del computador al que se está enviando, si es necesario.
@@ -385,21 +363,21 @@ Se le otorgan los permisos al folder
 chmod 700 .ssh
 ```
 
-Se mueve el archivo dentro de .ssh como "authorized_keys"
+Se mueve el texo del archivo id_rsa dentro del archivo "authorized_keys" en .ssh 
 ```bash
-mv id_ed25519.pub .ssh/authorized_keys
+cat id_rsa.pub >> ~/.ssh/authorized_keys
 ```
 
 Si al correr el programa paralelizado da problemas la conexión, intentar hacer este paso anterior solo con este comando, el usuario del esclavo y el ip del esclavo
 ```bash
-ssh-copy-id slaveUser@192.168.122.101
+ssh-copy-id slaveUser@172.18.64.131
 ```
 
 Para acceder al nodo esclavo desde el nodo maestro
 
 Se hace una conexión vía ssh
 ```bash
-ssh slaveUser@192.168.122.101
+ssh slaveUser@172.18.64.131
 ```
 
 Ahora se puede controlar la máquina a la cual se conectó.
@@ -418,10 +396,9 @@ sudo nano /etc/hosts
 
 Se abrirá el archivo para editar y se deben agregar las direcciones ip del master y los nodos
 ```txt
-192.168.50.100 master master
-192.168.122.101 node1 node1
-192.168.50.102 node2 node2
-192.168.122.103 node3 node3
+172.18.64.131 master master
+172.18.30.251 node1 node1
+172.18.67.123 node2 node2
 ```
 
 Ahora se podrá conectar por ssh a partir del nombre guardado, pero con el usuario del nodo
@@ -438,7 +415,7 @@ ssh node2
 
 En cada nodo del cluster, se necesita que todos los programas distribuidos por ejecutar tengan a disposición una carpeta compartida entre ellos. Esto será posible con la librería instalada anteriormente, nfs-kernel-server.
 
-Se configurará el recurso compartido
+Se configurará el recurso compartido en el nodo master
 
 Se creará un directorio en el home del nodo maestro. Este debería quedar a la par del directorio con nombre del usuario en /home/clusterdir/
 ```bash
@@ -446,15 +423,14 @@ cd ..
 sudo mkdir clusterdir
 ```
 
-Como root se exportará el directorio para que se pueda acceder remotamente, a través del archivo export
+Como root, se exportará el directorio para que se pueda acceder remotamente a través del archivo export. Se abrirá para editar el archivo.
 ```bash
 sudo nano /etc/exports
 ```
 
-Se abrirá para editar el archivo. Se debe agregar la ruta del directorio de la carpeta en el nodo maestro y las ips de los nodos esclavos
+Se debe agregar la ruta del directorio de la carpeta en el nodo maestro con las ips de los nodos esclavos
 ```txt
-/home/clusterdir 172.18.180.182(rw,no_subtree_check,async,fsid=0,no_root_squash,insecure)
-192.168.50.102
+/home/clusterdir 172.18.64.131(rw,no_subtree_check,async,fsid=0,no_root_squash,insecure)
 ```
 
 Se debe reiniciar el servicio de nfs
@@ -464,13 +440,14 @@ sudo /etc/init.d/nfs-kernel-server restart
 
 Para verificar que se pueda acceder a la carpeta compartida desde el nodo esclavo se utiliza el comando showmount con el ip del nodo master
 ```bash
-showmount -e 172.18.138.190
-192.168.50.180
+showmount -e 172.18.64.131
 ```
 
 Se montará el recurso desde el cli para ser agregado a fstab. Así se hará el montado automático para que cada vez que arranque el nodo se cree en /home del nodo el directorio clusterdir igual que el nodo maestro. Ahí estarán los recursos compartidos del nodo maestro a través de nfs
 
-Se creará el directorio en el nodo esclavo
+Ahora, se configurará el recurso compartido en el nodo esclavo
+
+Se creará el directorio
 ```bash
 sudo mkdir ../clusterdir
 ```
@@ -482,8 +459,7 @@ sudo nano /etc/fstab
 
 Se modifica el archivo fstab agregando al final el ip del nodo maestro, la dirección del directorio del nodo maestro, la dirección del directorio del nodo esclavo
 ```txt
-172.18.138.190:/home/clusterdir /home/clusterdir nfs rw,sync,hard,intr 0 0
-192.168.50.180
+172.18.30.251:/home/clusterdir /home/clusterdir nfs rw,sync,hard,intr 0 0
 ```
 
 Se monta
@@ -512,9 +488,8 @@ El paquete de build-essentials tiene lo necesario para desarrollar y compilar, q
 Continuando dentro del directorio /home/clusterdir/
 
 Se crea un archivo de compilación .mpi_hostfile en el nodo maestro
-
 ```bash
-sudo nano .mpi_hostfile
+sudo nano .mpi_hostfile_pso
 ```
 
 Se edita y se le agrega
@@ -544,15 +519,21 @@ El código por correr paralelamente debe estar dentro de la carpeta compartida j
 Debe incluir la libreria mpi y sus comandos para correrlo paralelamente
 
 Se debe compilar con el compilador de mpi
-Para este proyecto se codificó en el lenguaje c por lo que se usrá así
+Para este proyecto se codificó en el lenguaje c por lo que se usará así
 ```bash
 mpicc -o <executable_name> <program_code_file> -lm
 ```
 
-Por ejemplo:
+Se hizo una carpeta para hacer una prueba del cluster: mpi_test. Esta incluye un código de prueba para ver todos los procesos que se pueden correr y de que maquina.
+
+Para acceder a esta:
 ```bash
-sudo mpicc -o gaussian_blur_mpi gaussian_blur_mpi.c -lm
-sudo env "PATH=$PATH" "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" mpicc -o hello_mpi_x86 mpi_test/hello_mpi.c
+cd mpi_test
+```
+
+Para compilar el test:
+```bash
+sudo env "PATH=$PATH" "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" mpicc -o hello_mpi hello_mpi.c -lm
 ```
 
 Se utiliza sudo por estar en un directorio con permisos privilegiados
@@ -567,10 +548,9 @@ Para correrlo con mpi:
 mpirun -np <number_of_processes> --hostfile <hostfile_name> ./<executable_name> <upper_limit>
 ```
 
-Por ejemplo:
+Por ejemplo, para correr el test:
 ```bash
-mpirun -np 4 --hostfile .mpi_hostfile ./gaussian_blur_mpi
-mpirun -np 1 --hostfile ../.mpi_hostfile_aarch64 hello_mpi_aarch64 : -np 1 --hostfile ../.mpi_hostfile_x86 hello_mpi_x86
+mpirun -np 3 --hostfile ../.mpi_hostfile_pso ./hello_mpi
 ```
 
 
@@ -583,7 +563,7 @@ sudo /etc/init.d/nfs-kernel-server restart
 
 Verificar que el nodo master siga compartiendo la carpeta por nfs en el nodo esclavo
 ```bash
-showmount -e 192.168.50.100
+showmount -e 172.18.64.131
 ```
 
 Volver a hacer el mount en el nodo esclavo
@@ -592,4 +572,15 @@ sudo mount -a
 ```
 
 Se recomienda salirse de la carpeta /home/clusterdir/ y volver a ingresar, si se encuentra en esta, para que los archivos carguen nuevamente
+
+
+
+### Configuracion para ServerMPI
+
+1. Instalar la biblioteca de Desarrollo de OpenSSL
+
+```bash
+sudo apt install libssl-dev
+```
+
 
