@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "lcd_buzzer.h"
+#include <lcd_buzzer.h>
 #include <sys/socket.h>
 #include <unistd.h> // read(), write(), close()
 #include <dirent.h> // Para listar archivos en el directorio
@@ -62,13 +62,15 @@ void recibir_respuesta(int sockfd) {
     char buffer[MAX];
     int bytes_read = read(sockfd, buffer, sizeof(buffer) - 1);
     if (bytes_read > 0) {
-        buffer[bytes_read] = '\0';
-        char lcd[32] = '\0';
-        strcat(lcd, buffer);  // Concatenar mensaje
-        lcd_write(lcd);
-        play_melody();
-        beep_buzzer(3);
-        lcd_buzzer_close();
+    buffer[bytes_read] = '\0';
+    char lcd[32];
+	const char *final = " ";
+	lcd[0]= '\0';
+    strcat(lcd, buffer);  // Concatenar mensaje
+    strcat(lcd, final);
+	lcd_write(lcd);
+    play_melody();
+    beep_buzzer(3);
         printf("Respuesta del servidor:\n%s\n", buffer);
     } else {
         printf("No se recibió respuesta del servidor.\n");
@@ -113,6 +115,7 @@ int main() {
         input[strcspn(input, "\n")] = '\0'; // Eliminar el salto de línea
 
         if (strcmp(input, "salir") == 0) {
+	    lcd_buzzer_close();
             printf("Cerrando cliente.\n");
             break;
         }
