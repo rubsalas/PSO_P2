@@ -2,21 +2,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <lcd_buzzer.h>
+//#include <lcd_buzzer.h>   // Comentado mientras no hay driver
 #include <sys/socket.h>
 #include <unistd.h> // read(), write(), close()
 #include <dirent.h> // Para listar archivos en el directorio
 
-#define MAX 1024
-#define PORT 8080
-#define SA struct sockaddr
+#define MAX 1024 // Tamaño máximo del buffer para lectura y escritura
+#define PORT 8080 // Puerto donde se conecta al servidor
+#define SA struct sockaddr // Alias para simplificar el uso de sockaddr
 
 // Función para listar los archivos de texto disponibles en el directorio actual
 void listar_archivos() {
     DIR *dir;
     struct dirent *ent;
     printf("\n--- Archivos disponibles para enviar ---\n");
-    if ((dir = opendir(".")) != NULL) {
+    if ((dir = opendir("../Texts/")) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
             // Mostrar solo archivos con extensión ".txt"
             if (strstr(ent->d_name, ".txt") != NULL) {
@@ -62,15 +62,15 @@ void recibir_respuesta(int sockfd) {
     char buffer[MAX];
     int bytes_read = read(sockfd, buffer, sizeof(buffer) - 1);
     if (bytes_read > 0) {
-    buffer[bytes_read] = '\0';
-    char lcd[32];
-	const char *final = " ";
-	lcd[0]= '\0';
-    strcat(lcd, buffer);  // Concatenar mensaje
-    strcat(lcd, final);
-	lcd_write(lcd);
-    play_melody();
-    beep_buzzer(3);
+        buffer[bytes_read] = '\0';
+        char lcd[32];
+        const char *final = " ";
+        lcd[0]= '\0';
+        strcat(lcd, buffer);  // Concatenar mensaje
+        strcat(lcd, final);
+        //lcd_write(lcd); // Escribe el mensaje en el LCD   // Comentado mientras no hay driver
+        //play_melody();  // Reproduce una melodía  // Comentado mientras no hay driver
+        //beep_buzzer(3); // Emite tres pitidos con el buzzer   // Comentado mientras no hay driver
         printf("Respuesta del servidor:\n%s\n", buffer);
     } else {
         printf("No se recibió respuesta del servidor.\n");
@@ -78,9 +78,9 @@ void recibir_respuesta(int sockfd) {
 }
 
 int main() {
-    if (lcd_buzzer_init() < 0) {
-        return -1;
-    }
+    // if (lcd_buzzer_init() < 0) {
+    //     return -1;   // Comentado mientras no hay driver
+    // }
     int sockfd;
     struct sockaddr_in servaddr;
 
@@ -95,16 +95,18 @@ int main() {
     // Configuración del servidor
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = inet_addr("192.168.100.7");
+    servaddr.sin_addr.s_addr = inet_addr("192.168.50.100");
     servaddr.sin_port = htons(PORT);
 
     // Conectarse al servidor
+    
     if (connect(sockfd, (SA *)&servaddr, sizeof(servaddr)) != 0) {
         perror("Error al conectar al servidor");
         close(sockfd);
         exit(EXIT_FAILURE);
     }
     printf("Conectado al servidor.\n");
+    
 
     while (1) {
         listar_archivos();
@@ -115,7 +117,7 @@ int main() {
         input[strcspn(input, "\n")] = '\0'; // Eliminar el salto de línea
 
         if (strcmp(input, "salir") == 0) {
-	    lcd_buzzer_close();
+	    //lcd_buzzer_close();   // Comentado mientras no hay driver
             printf("Cerrando cliente.\n");
             break;
         }
