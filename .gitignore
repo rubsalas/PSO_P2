@@ -57,6 +57,7 @@ dkms.conf
 # ServerMPI
 ServerMPI/bin
 ServerMPI/obj
+ServerMPI/runtime
 
 # Client
 Client/bin

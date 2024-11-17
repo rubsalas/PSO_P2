@@ -5,6 +5,7 @@
 #include "socket_utils.h"
 #include "file_utils.h"
 #include "hardware_utils.h"
+#include "crypto_utils.h"
 
 #define MAX 1024
 #define SERVER_IP "192.168.50.100" // Dirección IP del servidor
@@ -56,11 +57,31 @@ int main() {
             send_file(sockfd, input); // Enviar el archivo al servidor
             char response[MAX];
             if (socket_receive(sockfd, response, sizeof(response)) > 0) {
+                
+                //printf("Respuesta del servidor (Texto encriptado): %s\n", response);
+
+                // Desencriptar la respuesta
+                unsigned char key[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+                unsigned char iv[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+
+                unsigned char decryptedText[128];
+                int decryptedTextLength = decrypt((unsigned char*)response, strlen(response), key, iv, decryptedText);
+                
+                if (decryptedTextLength == -1) {
+                    fprintf(stderr, "Error al desencriptar el texto\n");
+                    // Manejo de errores
+                }
+
+                decryptedText[decryptedTextLength] = '\0';
+
+                // Mostrar el texto desencriptado
+                printf("Texto desencriptado: %s\n", decryptedText);
+
                 // Mostrar respuesta del servidor en el hardware y consola
-                hardware_display_message(response);
+                hardware_display_message(decryptedText);
                 hardware_play_melody();
                 hardware_beep(3);
-                printf("Respuesta del servidor:\n%s\n", response);
+
             } else {
                 printf("No se recibió respuesta del servidor.\n");
             }

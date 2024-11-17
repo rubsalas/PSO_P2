@@ -10,10 +10,10 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Ejecutable objetivo
-TARGET = $(BIN_DIR)/word_counter_mpi
+TARGET = $(BIN_DIR)/server
 
 # Archivos fuente
-SRCS = $(SRC_DIR)/main_mpi.c $(SRC_DIR)/word_counter.c $(SRC_DIR)/crypto_utils.c $(SRC_DIR)/mpi_utils.c
+SRCS = $(SRC_DIR)/server_main.c $(SRC_DIR)/word_counter.c $(SRC_DIR)/mpi_utils.c $(SRC_DIR)/server.c $(SRC_DIR)/crypto_utils.c
 
 # Archivos objeto (reemplaza .c por .o y almacena en OBJ_DIR)
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)

@@ -4,9 +4,11 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
+#define MAX 1024           // Tamaño máximo para buffers y arreglos
+
 // Estructura para almacenar una palabra y su frecuencia
 typedef struct {
-    char word[100];  // Palabra con una longitud maxima de 100 caracteres
+    char word[MAX];  // Palabra con una longitud maxima de 100 caracteres
     int frequency;   // Frecuencia de la palabra
 } WordCount;
 

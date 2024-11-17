@@ -1,7 +1,7 @@
 # Compilador y banderas
 CC = gcc
 CFLAGS = -Wall -Iinclude
-LDFLAGS = -lm
+LDFLAGS = -lssl -lcrypto -lm
 
 # Directorios
 SRC_DIR = src
@@ -13,7 +13,7 @@ BIN_DIR = bin
 TARGET = $(BIN_DIR)/client
 
 # Fuentes
-SRCS = $(SRC_DIR)/main_client.c $(SRC_DIR)/socket_utils.c $(SRC_DIR)/file_utils.c $(SRC_DIR)/hardware_utils.c
+SRCS = $(SRC_DIR)/client_main.c $(SRC_DIR)/socket_utils.c $(SRC_DIR)/file_utils.c $(SRC_DIR)/hardware_utils.c $(SRC_DIR)/crypto_utils.c
 
 # Objetos
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
