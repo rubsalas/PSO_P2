@@ -6,6 +6,7 @@
 #include <sys/socket.h> 
 #include <sys/types.h> 
 #include <unistd.h> // read(), write(), close()
+
 #define MAX 80 
 #define PORT 8080 
 #define SA struct sockaddr 
@@ -92,4 +93,5 @@ int main()
   
     // After chatting close the socket 
     close(sockfd); 
-} 
+}
+
