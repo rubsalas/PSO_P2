@@ -57,3 +57,7 @@ dkms.conf
 # ServerMPI
 ServerMPI/bin
 ServerMPI/obj
+
+# Client
+Client/bin
+Client/obj
