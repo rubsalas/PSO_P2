@@ -11,7 +11,7 @@
 static int device_fd = -1;  // Descriptor de archivo para el dispositivo
 
 int lcd_buzzer_init(void) {
-    device_fd = open(DEVICE_PATH, O_WRONLY);
+    device_fd = open(DEVICE_PATH, O_RDWR);
     if (device_fd < 0) {
         perror("Error al abrir el dispositivo");
         return -1;
@@ -31,7 +31,7 @@ void play_melody(void) {
         fprintf(stderr, "Dispositivo no abierto\n");
         return;
     }
-    ioctl(device_fd, 0, NULL);  // Código 0 indica `play_melody`
+    ioctl(device_fd, 0, NULL);  // CÃ³digo 0 indica `play_melody`
 }
 
 void beep_buzzer(int times) {
@@ -39,7 +39,7 @@ void beep_buzzer(int times) {
         fprintf(stderr, "Dispositivo no abierto\n");
         return;
     }
-    ioctl(device_fd, 1, &times); // Código 1 indica `beep_buzzer`
+    ioctl(device_fd, 1, &times); // CÃ³digo 1 indica `beep_buzzer`
 }
 
 int lcd_write(const char *message) {

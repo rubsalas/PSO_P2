@@ -8,7 +8,7 @@ int main() {
         return -1;
     }
     const char *palabra = "Quijote";
-    const char *cantidad = "1229";
+    const char *cantidad = "1234";
     const char *cambio = "#";
     const char *final = " ";
     char linea1[16] = "P: ";
@@ -23,11 +23,8 @@ int main() {
     // Concatenar las cadenas
     strcat(lcd, linea1);  // Concatenar el primer mensaje
     strcat(lcd, linea2);  // Concatenar el segundo mensaje (espacio)
+    beep_buzzer(5);
 
-    lcd_write(lcd);
-
-    play_melody();
-    beep_buzzer(3);
 
     lcd_buzzer_close();
     return 0;
