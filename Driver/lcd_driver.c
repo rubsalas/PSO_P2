@@ -6,6 +6,7 @@
 #include <linux/uaccess.h>
 #include <linux/gpio.h>
 #include <linux/delay.h>
+#include <linux/ioctl.h>
 
 /* Metainformación */
 MODULE_LICENSE("GPL");
@@ -38,6 +39,8 @@ unsigned int gpios[] = {
 };
 /* Definir el pin del buzzer */
 unsigned int buzzer_pin = 18;  
+#define IOCTL_PLAY_MELODY 0
+#define IOCTL_BEEP_BUZZER 1
 
 /* Notas para la melodía de Fur Elise */
 #define NOTE_E5 659
@@ -184,9 +187,31 @@ static ssize_t driver_write(struct file *File, const char *user_buffer, size_t c
 			}
 		lcd_data(lcd_buffer[i]);
 		}
-
 	return delta;
 }
+
+
+static long driver_ioctl(struct file *file, unsigned int cmd, unsigned long arg){
+	switch (cmd) {
+		case IOCTL_PLAY_MELODY:
+			play_melody();
+			break;
+		case IOCTL_BEEP_BUZZER: {
+			int times;
+           		if (copy_from_user(&times, (int __user *)arg, sizeof(times))) {
+                		return -EFAULT;
+            		}
+            		printk("Beeping buzzer %d times...\n", times);
+            		beep_buzzer(times);
+			break;
+		}
+		default:
+			return -EINVAL;
+	
+	}
+	return 0;
+}
+
 
 
 /**
@@ -209,7 +234,8 @@ static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.open = driver_open,
 	.release = driver_close,
-	.write = driver_write
+	.write = driver_write,
+	.unlocked_ioctl = driver_ioctl
 };
 
 /**
@@ -282,19 +308,16 @@ static int __init ModuleInit(void) {
     lcd_command(0x01);   /* Limpiar pantalla */
     msleep(5);           /* Retraso para que el comando de limpieza termine */
 
-    char text[] = "Palabra:Hola\nCantidad:39!";
+    char text[] = "Driver\nInstalado! ;)";
     for (i = 0; i < sizeof(text) - 1; i++) {
         if (text[i] == '\n') {
             lcd_command(0xC0);  // Comando para la segunda línea
             i++;
         }
         lcd_data(text[i]);
-    }
+	}
 
-    /* Hacer sonar el buzzer 3 veces */
-    beep_buzzer(3);
-
-    return 0;
+	return 0;
 
 GpioBuzzerDirectionError:
     gpio_free(buzzer_pin);

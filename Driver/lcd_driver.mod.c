@@ -29,8 +29,6 @@ static const struct modversion_info ____versions[]
 __used __section("__versions") = {
 	{ 0x290c8a96, "module_layout" },
 	{ 0x40a943fb, "cdev_del" },
-	{ 0x8f678b07, "__stack_chk_guard" },
-	{ 0x3ea1b6e4, "__stack_chk_fail" },
 	{ 0x6091b333, "unregister_chrdev_region" },
 	{ 0x49d590, "class_destroy" },
 	{ 0x5ecde9bf, "device_destroy" },
@@ -43,8 +41,10 @@ __used __section("__versions") = {
 	{ 0xdf84066, "__class_create" },
 	{ 0xe3ec2f2b, "alloc_chrdev_region" },
 	{ 0x5f754e5a, "memset" },
-	{ 0xae353d77, "arm_copy_from_user" },
 	{ 0x88db9f48, "__check_object_size" },
+	{ 0x8f678b07, "__stack_chk_guard" },
+	{ 0x3ea1b6e4, "__stack_chk_fail" },
+	{ 0xae353d77, "arm_copy_from_user" },
 	{ 0xf9a482f9, "msleep" },
 	{ 0xfbe2272c, "gpiod_set_raw_value" },
 	{ 0x38e0975f, "gpio_to_desc" },
@@ -57,4 +57,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "E282D0CF4E80F90E6A21BF7");
+MODULE_INFO(srcversion, "C4880F78274457B4AE294D3");
