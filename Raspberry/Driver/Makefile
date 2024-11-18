@@ -1,7 +1,4 @@
 
-
-
-
 obj-m += lcd_driver.o
 
 all:

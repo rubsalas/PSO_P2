@@ -50,3 +50,14 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Visual Studio
+.vscode
+
+# ServerMPI
+PCMASTER/ServerMPI/bin
+PCMASTER/ServerMPI/obj
+
+# Client
+Raspberry/Client/bin
+Raspberry/Client/obj

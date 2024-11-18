@@ -20,7 +20,7 @@ sudo cp lcd_buzzer.h /usr/local/include/
 
 2. Uso de la biblioteca:
 
-Una vez instalato el driver y la biblioteca, es posible incluir la biblioteca a los programas de C.
+Una vez instalado el driver y la biblioteca, es posible incluir la biblioteca a los programas de C.
 ```bash
 #include "lcd_driver_lib.h"  // Asegúrate de que el archivo .h esté en el directorio correcto
 ```
