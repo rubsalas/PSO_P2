@@ -136,9 +136,17 @@ Eliminar todos los archivos de OpenMPI.
 
 ```bash
 sudo  rm  -rf  /usr/bin/mpi*
+```
+```bash
 sudo  rm  -rf  /usr/include/mpi*
+```
+```bash
 sudo  rm  -rf  /usr/lib/libmpi*
+```
+```bash
 sudo  rm  -rf  /usr/share/openmpi
+```
+```bash
 sudo  rm  -rf  /usr/etc/openmpi
 ```
 
@@ -152,15 +160,15 @@ Asignar el método manual.
 
 **Asignar una Dirección:**
 
-Dirección: 172.18.64.131
-Máscara de red: 255.255.255.0
-Puerta de enlace: 172.18.127.1
+- Dirección: 172.18.64.131
+- Máscara de red: 255.255.255.0
+- Puerta de enlace: 172.18.127.1
 
 **Configurar el DNS:**
 
 Desmarcar el automático.
 
-DNS: 172.20.10.15
+- DNS: 172.20.10.15
 
 Desconectarse y volverse a conectar para que los cambios ocurran.
 
@@ -191,15 +199,15 @@ Asignar el método manual.
 
 **Asignar una Dirección:**
 
-Dirección: 172.18.244.159
-Máscara de red: 255.255.255.0
-Puerta de enlace: 172.18.127.1
+- Dirección: 172.18.244.159
+- Máscara de red: 255.255.255.0
+- Puerta de enlace: 172.18.127.1
 
 **Configurar el DNS:**
 
 Desmarcar el automático.
 
-DNS: 172.20.10.15
+- DNS: 172.20.10.15
 
 Proceder a conectar el nodo maestro en la red cableada para que el LAN funcione.
 
@@ -309,8 +317,9 @@ Se configurará el recurso compartido en el **nodo master**.
 Se creará un directorio en el home del nodo maestro. Este debería quedar a la par del directorio con nombre del usuario en /home/clusterdir/.
 
 ```bash
-cd
-cd  ..
+cd && cd  ..
+```
+```bash
 sudo  mkdir  clusterdir
 ```
 
@@ -585,15 +594,15 @@ Asignar el método manual.
 
 **Asignar una Dirección:**
 
-Dirección: 192.168.50.180
-Máscara de red: 255.255.255.0
-Puerta de enlace: 192.168.50.1
+- Dirección: 192.168.50.180
+- Máscara de red: 255.255.255.0
+- Puerta de enlace: 192.168.50.1
 
 **Configurar el DNS:**
 
 Desmarcar el automático.
 
-DNS: 192.168.50.1
+- DNS: 192.168.50.1
 
 > Desconectarse y volverse a conectar para que los cambios ocurran.
 
@@ -715,9 +724,9 @@ make
 O se puede realizar la compilación sin la necesidad de un archivo make, ejecutando los siguientes comandos.
 
 ```bash
-make  -C  /lib/modules/$(uname  -r)/build  M=$(pwd) modules
+make  -C  /lib/modules/$(uname -r)/build  M=$(pwd) modules
 
-make  -C  /lib/modules/$(uname  -r)/build  M=$(pwd) clean
+make  -C  /lib/modules/$(uname -r)/build  M=$(pwd) clean
 ```
 
 Estos comandos compilarán el driver y generarán un archivo .ko (módulo del kernel), en este caso, lcd_driver.ko.
@@ -808,7 +817,13 @@ gcc  main.c  -L/usr/local/lib  -llcd_driver  -o  main_program
 
 ### VII. Cliente
 
-1. Compilar el cliente
+1. Instalar la biblioteca de Desarrollo de OpenSSL
+
+```bash
+sudo apt install libssl-dev
+```
+
+2. Compilar el cliente
 
 Ir al folder Client con el Makefile.
 
@@ -828,7 +843,7 @@ Para limpiar el proyecto.
 make  clean
 ```
 
-2. Ejecutar el cliente
+3. Ejecutar el cliente
 
 ```bash
 make  run

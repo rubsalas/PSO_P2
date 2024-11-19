@@ -57,6 +57,7 @@ dkms.conf
 # ServerMPI
 PCMASTER/ServerMPI/bin
 PCMASTER/ServerMPI/obj
+PCMASTER/ServerMPI/runtime/archivo
 
 # Client
 Raspberry/Client/bin
