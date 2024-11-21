@@ -10,7 +10,7 @@
 #include "crypto_utils.h"
 
 #define MAX 1024
-#define SERVER_IP "192.168.100.7" // Dirección IP del servidor
+#define SERVER_IP "172.18.64.131" // Dirección IP del servidor
 
 /*
  * Función: main
@@ -86,7 +86,7 @@ int main() {
                 strcat(lcd, decryptedText);  // Concatenar mensaje
                 strcat(lcd, final);
                 lcd_write(lcd);
-	        play_melody();
+	            play_melody();
                 beep_buzzer(3);
 
             } else {

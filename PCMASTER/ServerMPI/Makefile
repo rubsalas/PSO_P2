@@ -41,7 +41,7 @@ run: $(TARGET)
 
 # Ejecutar el proyecto con MPI y un hostfile especificado
 run_mpi: $(TARGET)
-	$(MPI_ENV) mpirun -np $(NP) --hostfile ../.mpi_hostfile_pso $(TARGET)
+	$(MPI_ENV) mpirun -np $(NP) --hostfile ../.mpi_hostfile $(TARGET)
 
 # Regla para compilar con soporte de hardware opcional
 hardware: CFLAGS += -DHARDWARE_SUPPORT
